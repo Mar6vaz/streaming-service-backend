@@ -1,4 +1,5 @@
-import { S3Client } from '@aws-sdk/client-s3';
+import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const s3Client = new S3Client({
   region: process.env.AWS_REGION ?? 'us-east-1',
@@ -10,4 +11,9 @@ const s3Client = new S3Client({
 
 const S3_BUCKET = process.env.S3_BUCKET_NAME ?? 'cinestream-trailers';
 
-export { s3Client, S3_BUCKET };
+const generateSignedUrl = async (key: string): Promise<string> => {
+  const command = new GetObjectCommand({ Bucket: S3_BUCKET, Key: key });
+  return getSignedUrl(s3Client, command, { expiresIn: 3600 });
+};
+
+export { s3Client, S3_BUCKET, generateSignedUrl };

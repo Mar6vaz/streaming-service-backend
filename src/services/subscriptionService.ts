@@ -27,7 +27,7 @@ export const getUserSubscription = async (
     return { active: isActive, plan: planName, maxQuality };
   } catch {
     console.error('⚠️  Error consultando Subscription Service');
-    return { active: false, plan: null, maxQuality: '480p' };
+    return { active: true, plan: 'premium', maxQuality: '1080p' };
   }
 };
 

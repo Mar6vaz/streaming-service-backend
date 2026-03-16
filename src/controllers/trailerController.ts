@@ -4,6 +4,7 @@ import Trailer from '../models/Trailer';
 import { uploadToS3, deleteFromS3 } from '../services/s3Service';
 import { getDurationFromBuffer } from '../utils/ffprobe';
 import { getUserSubscription } from '../services/subscriptionService';
+import { generateSignedUrl } from '../config/s3';
 
 const QUALITY_LEVELS: Record<string, number> = { '480p': 1, '720p': 2, '1080p': 3 };
 
@@ -29,11 +30,13 @@ export const getTrailer = async (req: AuthRequest, res: Response): Promise<void>
     const userLevel = QUALITY_LEVELS[subscription.maxQuality] ?? 1;
     const effectiveQuality = trailerLevel <= userLevel ? trailer.quality : subscription.maxQuality;
 
+    const signedUrl = await generateSignedUrl(trailer.s3_key);
+
     res.status(200).json({
       trailer_id: trailer._id,
       movie_id: trailer.movie_id,
       title: trailer.title,
-      trailer_url: trailer.trailer_url,
+      trailer_url: signedUrl,
       duration_sec: trailer.duration_sec,
       quality: effectiveQuality,
     });
